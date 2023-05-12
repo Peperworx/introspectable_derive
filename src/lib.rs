@@ -41,7 +41,7 @@ pub fn derive_introspectable(input: TokenStream) -> TokenStream {
             quote! {
                 (
                     #ident,
-                    #ty::introspect()
+                    <#ty>::introspect()
                 )
             }
         });
@@ -90,7 +90,7 @@ pub fn derive_introspectable(input: TokenStream) -> TokenStream {
                         let ty = &field.ty;
 
                         quote! {
-                            (#name, #ty::introspect())
+                            (#name, <#ty>::introspect())
                         }
                     });
 
@@ -141,3 +141,6 @@ pub fn derive_introspectable(input: TokenStream) -> TokenStream {
         panic!("Intospectable can currently only be derived on Structs and Enums");
     }
 }
+
+
+
