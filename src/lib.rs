@@ -6,6 +6,9 @@ extern crate syn;
 #[macro_use]
 extern crate quote;
 
+/// Implements basic parsing functions for various parts of structure and enum bodies.
+mod parse;
+
 
 #[proc_macro_derive(Introspectable)]
 pub fn derive_introspectable(input: TokenStream) -> TokenStream {
@@ -37,11 +40,12 @@ pub fn derive_introspectable(input: TokenStream) -> TokenStream {
                 Some(v) => v.to_string(),
                 None => i.to_string()
             };
+            let ty = parse::parse_type(ty);
 
             quote! {
                 (
                     #ident,
-                    <#ty>::introspect()
+                    #ty
                 )
             }
         });
@@ -87,10 +91,10 @@ pub fn derive_introspectable(input: TokenStream) -> TokenStream {
                         };
 
                         // Get the type value
-                        let ty = &field.ty;
+                        let ty = parse::parse_type(field.ty.clone());
 
                         quote! {
-                            (#name, <#ty>::introspect())
+                            (#name, #ty)
                         }
                     });
 
@@ -106,10 +110,7 @@ pub fn derive_introspectable(input: TokenStream) -> TokenStream {
 
                     // Create an iterator to map over fields, returning the introspected type
                     let fields = fields.unnamed.iter().map(|field| {
-                        let ty = &field.ty;
-                        quote!{
-                            #ty::introspect()
-                        }
+                        parse::parse_type(field.ty.clone())
                     });
 
                     // Return an Unnamed Variant Type
